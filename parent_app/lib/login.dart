@@ -494,7 +494,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: const Text(
-                "Log In",
+                "Sign Up",
                 style: TextStyle(
                   color: primary,
                   fontSize: 13.5,

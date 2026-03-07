@@ -164,19 +164,31 @@ class _AppointmentbookingState extends State<Appointmentbooking>
     }
     setState(() => _isLoading = true);
     try {
+      final dateStr = DateFormat('yyyy-MM-dd').format(_selectedCalendarDay!);
+      final psyId = widget.psychologistData?['psychologist_id'];
+
+      // Fetch existing appointments for the selected date and doctor to generate token
+      final countRes = await supabase
+          .from('tbl_appointment')
+          .select('appointment_id')
+          .eq('psychologist_id', psyId)
+          .eq('appointment_date', dateStr);
+
+      final int existingCount = (countRes as List).length;
+      final String tokenNo = 'TKN-${existingCount + 1}';
+
       await supabase.from('tbl_appointment').insert({
-        'psychologist_id': widget.psychologistData?['psychologist_id'],
+        'psychologist_id': psyId,
         'parent_id': supabase.auth.currentUser?.id,
         'child_name': _selectedChild,
-        'appointment_date': DateFormat(
-          'yyyy-MM-dd',
-        ).format(_selectedCalendarDay!),
+        'appointment_date': dateStr,
         'appointment_time': _selectedTime,
         'appointment_status': 0,
         'appointment_type': (_appointmentType == 'Online') ? 1 : 0,
+        'token_number': tokenNo, // Added token number
       });
       if (mounted) {
-        _showSnackBar("Booking request sent successfully!");
+        _showSnackBar("Booking request sent successfully! Token: $tokenNo");
         Navigator.pop(context);
       }
     } catch (e) {

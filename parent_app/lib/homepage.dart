@@ -7,6 +7,7 @@ import 'myprofile.dart';
 import 'myappointments.dart';
 import 'activity.dart';
 import 'notificationpage.dart';
+import 'communitypost.dart'; // 1. IMPORTED COMMUNITYPOST
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -463,7 +464,7 @@ class _HomepageState extends State<Homepage>
         const Color(0xFF8B6BAA),
         const Color(0xFFE8D8F5),
         "Connect",
-        null,
+        const Communitypost(), // 2. LINKED COMMUNITYPOST HERE
       ),
       _ToolItem(
         "Milestones",

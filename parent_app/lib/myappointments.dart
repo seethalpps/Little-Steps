@@ -29,7 +29,6 @@ class _MyappointmentsState extends State<Myappointments>
   static const Color inkMuted = Color(0xFF7B6A9A);
   static const Color rule = Color(0xFFE6DDF5);
   static const Color danger = Color(0xFF9B3A5A);
-  // ────────────────────────────────────────────────────────────────────────────
 
   late TabController _tabController;
   late AnimationController _animController;
@@ -134,7 +133,7 @@ class _MyappointmentsState extends State<Myappointments>
               ),
               const SizedBox(height: 8),
               const Text(
-                "Are you sure you want to cancel this appointment? This cannot be undone.",
+                "Are you sure you want to cancel this appointment?",
                 textAlign: TextAlign.center,
                 style: TextStyle(color: inkMuted, fontSize: 13, height: 1.5),
               ),
@@ -203,19 +202,9 @@ class _MyappointmentsState extends State<Myappointments>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text(
-              "Appointment cancelled",
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            content: const Text("Appointment cancelled"),
             backgroundColor: primary,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            margin: const EdgeInsets.all(16),
           ),
         );
         fetchAppointments();
@@ -232,25 +221,14 @@ class _MyappointmentsState extends State<Myappointments>
       appBar: AppBar(
         backgroundColor: background,
         elevation: 0,
-        scrolledUnderElevation: 0,
         centerTitle: true,
-        leading: Padding(
-          padding: const EdgeInsets.all(10),
-          child: GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Container(
-              decoration: BoxDecoration(
-                color: surface,
-                shape: BoxShape.circle,
-                border: Border.all(color: rule),
-              ),
-              child: const Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: primary,
-                size: 15,
-              ),
-            ),
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: primary,
+            size: 18,
           ),
+          onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           "Appointments",
@@ -266,7 +244,6 @@ class _MyappointmentsState extends State<Myappointments>
             padding: const EdgeInsets.fromLTRB(22, 0, 22, 12),
             child: Container(
               height: 44,
-              padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 color: surface,
                 borderRadius: BorderRadius.circular(14),
@@ -275,19 +252,8 @@ class _MyappointmentsState extends State<Myappointments>
               child: TabBar(
                 controller: _tabController,
                 indicator: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [deep, primary],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  gradient: const LinearGradient(colors: [deep, primary]),
                   borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: primary.withOpacity(0.25),
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
                 ),
                 indicatorSize: TabBarIndicatorSize.tab,
                 dividerColor: Colors.transparent,
@@ -295,10 +261,6 @@ class _MyappointmentsState extends State<Myappointments>
                 unselectedLabelColor: inkMuted,
                 labelStyle: const TextStyle(
                   fontWeight: FontWeight.w700,
-                  fontSize: 13.5,
-                ),
-                unselectedLabelStyle: const TextStyle(
-                  fontWeight: FontWeight.w600,
                   fontSize: 13.5,
                 ),
                 tabs: const [
@@ -311,31 +273,24 @@ class _MyappointmentsState extends State<Myappointments>
         ),
       ),
       body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: primary, strokeWidth: 2),
-            )
-          : FadeTransition(
-              opacity: _fadeAnim,
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  _buildListView(
-                    upcomingAppointments,
-                    "No upcoming appointments",
-                    true,
-                  ),
-                  _buildListView(
-                    previousAppointments,
-                    "No previous appointments",
-                    false,
-                  ),
-                ],
-              ),
+          ? const Center(child: CircularProgressIndicator(color: primary))
+          : TabBarView(
+              controller: _tabController,
+              children: [
+                _buildListView(
+                  upcomingAppointments,
+                  "No upcoming appointments",
+                  true,
+                ),
+                _buildListView(
+                  previousAppointments,
+                  "No previous appointments",
+                  false,
+                ),
+              ],
             ),
     );
   }
-
-  // ─── LIST VIEW ───────────────────────────────────────────────────────────────
 
   Widget _buildListView(
     List<Map<String, dynamic>> list,
@@ -344,34 +299,7 @@ class _MyappointmentsState extends State<Myappointments>
   ) {
     if (list.isEmpty) {
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: soft.withOpacity(0.4),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                isUpcoming
-                    ? Icons.calendar_today_outlined
-                    : Icons.history_rounded,
-                size: 36,
-                color: primary,
-              ),
-            ),
-            const SizedBox(height: 14),
-            Text(
-              emptyMsg,
-              style: const TextStyle(
-                color: inkMuted,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
+        child: Text(emptyMsg, style: const TextStyle(color: inkMuted)),
       );
     }
 
@@ -381,19 +309,19 @@ class _MyappointmentsState extends State<Myappointments>
       itemBuilder: (context, index) {
         final appt = list[index];
         final psychologist = appt['psychologist'];
-        final appointmentId = appt['appointment_id'].toString();
+
+        // This pulls "TKN 10" directly from your data column
+        final String tokenValue = appt['token_number']?.toString() ?? "N/A";
+
         final int typeValue =
             int.tryParse(appt['appointment_type'].toString()) ?? 0;
-        final String appTypeText = typeValue == 1 ? "Online" : "Offline";
         final int status =
             int.tryParse(appt['appointment_status'].toString()) ?? 0;
 
-        String dayDate = "N/A";
         String dayNum = "";
         String monthStr = "";
         if (appt['appointment_date'] != null) {
           final date = DateTime.parse(appt['appointment_date']);
-          dayDate = DateFormat('EEE, MMM d').format(date);
           dayNum = DateFormat('d').format(date);
           monthStr = DateFormat('MMM').format(date);
         }
@@ -403,25 +331,25 @@ class _MyappointmentsState extends State<Myappointments>
           qualification:
               psychologist['psychologist_qualification'] ??
               "Clinical Psychologist",
-          photoUrl: psychologist['psychologist_photo'],
-          dayDate: dayDate,
           dayNum: dayNum,
           monthStr: monthStr,
           time: appt['appointment_time'] ?? "00:00",
           status: status,
           showStatus: isUpcoming,
-          appointmentTypeText: appTypeText,
+          appointmentTypeText: typeValue == 1 ? "Online" : "Offline",
           isOnline: typeValue == 1,
+          tokenData: tokenValue,
         );
 
         if (isUpcoming) {
           return Padding(
             padding: const EdgeInsets.only(bottom: 14),
             child: Dismissible(
-              key: Key(appointmentId),
+              key: Key(appt['appointment_id'].toString()),
               direction: DismissDirection.endToStart,
               confirmDismiss: (_) => _showDeleteConfirmation(),
-              onDismissed: (_) => _deleteAppointment(appointmentId),
+              onDismissed: (_) =>
+                  _deleteAppointment(appt['appointment_id'].toString()),
               background: Container(
                 alignment: Alignment.centerRight,
                 padding: const EdgeInsets.only(right: 24),
@@ -432,25 +360,20 @@ class _MyappointmentsState extends State<Myappointments>
                 child: const Icon(
                   Icons.event_busy_rounded,
                   color: Colors.white,
-                  size: 26,
                 ),
               ),
               child: card,
             ),
           );
         }
-
         return Padding(padding: const EdgeInsets.only(bottom: 14), child: card);
       },
     );
   }
 
-  // ─── APPOINTMENT CARD ────────────────────────────────────────────────────────
-
   Widget _buildAppointmentCard({
     required String name,
     required String qualification,
-    required String dayDate,
     required String dayNum,
     required String monthStr,
     required String time,
@@ -458,32 +381,19 @@ class _MyappointmentsState extends State<Myappointments>
     required bool showStatus,
     required String appointmentTypeText,
     required bool isOnline,
-    String? photoUrl,
+    required String tokenData,
   }) {
-    // Status
     final Color statusColor = status == 1
         ? const Color(0xFF3D9A6B)
         : const Color(0xFFD4820A);
     final Color statusBg = status == 1
         ? const Color(0xFFDFF5EC)
         : const Color(0xFFFFF3DC);
-    final String statusText = status == 1 ? "Accepted" : "Pending";
-
-    // Type
     final Color typeColor = isOnline ? primary : const Color(0xFF5B8FA8);
     final Color typeBg = isOnline ? soft : const Color(0xFFDCEEF6);
 
-    // Initials fallback
-    final initials = name
-        .trim()
-        .split(' ')
-        .map((e) => e.isNotEmpty ? e[0] : '')
-        .take(2)
-        .join()
-        .toUpperCase();
-
     return Container(
-      padding: const EdgeInsets.all(16),
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: surface,
         borderRadius: BorderRadius.circular(22),
@@ -496,212 +406,156 @@ class _MyappointmentsState extends State<Myappointments>
           ),
         ],
       ),
-      child: Row(
-        children: [
-          // ── Date block ─────────────────────────────────────────────────────
-          Container(
-            width: 52,
-            height: 62,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [deep, primary],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: primary.withOpacity(0.25),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  dayNum,
-                  style: GoogleFonts.playfairDisplay(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    height: 1.1,
-                  ),
-                ),
-                Text(
-                  monthStr.toUpperCase(),
-                  style: TextStyle(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white.withOpacity(0.75),
-                    letterSpacing: 1.2,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 14),
-
-          // ── Info ───────────────────────────────────────────────────────────
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                    color: inkDark,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  qualification,
-                  style: const TextStyle(color: inkMuted, fontSize: 12),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 8),
-                Row(
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Left Content
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
                   children: [
-                    // Type badge
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
+                      width: 50,
+                      height: 58,
                       decoration: BoxDecoration(
-                        color: typeBg,
-                        borderRadius: BorderRadius.circular(8),
+                        gradient: const LinearGradient(colors: [deep, primary]),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            isOnline
-                                ? Icons.videocam_outlined
-                                : Icons.location_on_outlined,
-                            size: 10,
-                            color: typeColor,
-                          ),
-                          const SizedBox(width: 3),
                           Text(
-                            appointmentTypeText,
-                            style: TextStyle(
-                              color: typeColor,
+                            dayNum,
+                            style: GoogleFonts.playfairDisplay(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              height: 1.1,
+                            ),
+                          ),
+                          Text(
+                            monthStr.toUpperCase(),
+                            style: const TextStyle(
+                              fontSize: 8,
                               fontWeight: FontWeight.w800,
-                              fontSize: 10,
+                              color: Colors.white,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    if (showStatus) ...[
-                      const SizedBox(width: 6),
-                      // Status badge
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 3,
-                        ),
-                        decoration: BoxDecoration(
-                          color: statusBg,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 6,
-                              height: 6,
-                              decoration: BoxDecoration(
-                                color: statusColor,
-                                shape: BoxShape.circle,
-                              ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            name,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              color: inkDark,
                             ),
-                            const SizedBox(width: 4),
-                            Text(
-                              statusText,
-                              style: TextStyle(
-                                color: statusColor,
-                                fontWeight: FontWeight.w800,
-                                fontSize: 10,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 10),
-
-          // ── Avatar + time ──────────────────────────────────────────────────
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              // Avatar
-              Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [medium, primary],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(13),
-                ),
-                child: photoUrl != null
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(13),
-                        child: Image.network(photoUrl, fit: BoxFit.cover),
-                      )
-                    : Center(
-                        child: Text(
-                          initials,
-                          style: GoogleFonts.playfairDisplay(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: surface,
                           ),
-                        ),
-                      ),
-              ),
-              const SizedBox(height: 8),
-              // Time pill
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                decoration: BoxDecoration(
-                  color: soft,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.schedule_rounded,
-                      size: 10,
-                      color: primary,
-                    ),
-                    const SizedBox(width: 3),
-                    Text(
-                      time,
-                      style: const TextStyle(
-                        color: primary,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 11,
+                          Text(
+                            qualification,
+                            style: const TextStyle(
+                              color: inkMuted,
+                              fontSize: 11,
+                            ),
+                            maxLines: 1,
+                          ),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 4,
+                            runSpacing: 4,
+                            children: [
+                              _buildBadge(
+                                appointmentTypeText,
+                                typeBg,
+                                typeColor,
+                                isOnline
+                                    ? Icons.videocam_outlined
+                                    : Icons.location_on_outlined,
+                              ),
+                              if (showStatus)
+                                _buildBadge(
+                                  status == 1 ? "Accepted" : "Pending",
+                                  statusBg,
+                                  statusColor,
+                                  Icons.circle,
+                                  iconSize: 6,
+                                ),
+                              _buildBadge(
+                                time,
+                                soft,
+                                primary,
+                                Icons.schedule_rounded,
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-            ],
+            ),
+            // Right Token Section (Displays data exactly as provided)
+            Container(
+              width: 80,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              decoration: BoxDecoration(
+                color: background.withOpacity(0.4),
+                border: const Border(left: BorderSide(color: rule)),
+              ),
+              child: Center(
+                child: Text(
+                  tokenData, // This will show "TKN 10" or whatever is in your DB
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: primary,
+                    height: 1.2,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBadge(
+    String text,
+    Color bg,
+    Color textCol,
+    IconData icon, {
+    double iconSize = 10,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: iconSize, color: textCol),
+          const SizedBox(width: 3),
+          Text(
+            text,
+            style: TextStyle(
+              color: textCol,
+              fontWeight: FontWeight.w800,
+              fontSize: 9,
+            ),
           ),
         ],
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:google_fonts/google_fonts.dart';
 // Ensure this path matches your project structure
 import 'package:psychologist_app/viewparent.dart';
 
@@ -18,8 +19,12 @@ class _MyappointmentsState extends State<Myappointments> {
   List<Map<String, dynamic>> previousAppointments = [];
   bool _isLoading = true;
 
-  final Color primaryPurple = const Color(0xFF673AB7);
-  final Color lightLavender = const Color(0xFFF1EEFA);
+  // ── Lavender Palette ───────────────────────────────────────────────────────
+  static const Color primaryPurple = Color(0xFF673AB7);
+  static const Color deepPurple = Color(0xFF2D1B5E);
+  static const Color lightLavender = Color(0xFFF1EEFA);
+  static const Color rule = Color(0xFFE6DDF5);
+  static const Color inkMuted = Color(0xFF7B6A9A);
 
   @override
   void initState() {
@@ -113,18 +118,20 @@ class _MyappointmentsState extends State<Myappointments> {
             "My Sessions",
             style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
           ),
-          bottom: TabBar(
+          bottom: const TabBar(
             indicatorColor: primaryPurple,
             labelColor: primaryPurple,
             unselectedLabelColor: Colors.grey,
-            tabs: const [
+            tabs: [
               Tab(text: "Upcoming"),
               Tab(text: "Past"),
             ],
           ),
         ),
         body: _isLoading
-            ? Center(child: CircularProgressIndicator(color: primaryPurple))
+            ? const Center(
+                child: CircularProgressIndicator(color: primaryPurple),
+              )
             : TabBarView(
                 children: [
                   _buildListView(
@@ -162,9 +169,10 @@ class _MyappointmentsState extends State<Myappointments> {
         final parentData = appt['parent'];
         final appointmentId = appt['appointment_id'].toString();
         final String status = appt['appointment_status']?.toString() ?? '0';
-
-        // Handling the appointment type logic
         final String type = appt['appointment_type']?.toString() ?? '0';
+
+        // Fetch Token Data from Database
+        final String tokenData = appt['token_number']?.toString() ?? "N/A";
 
         DateTime date = DateTime.parse(appt['appointment_date']);
         String formattedDate = DateFormat('EEE, MMM d').format(date);
@@ -189,7 +197,8 @@ class _MyappointmentsState extends State<Myappointments> {
             date: formattedDate,
             time: appt['appointment_time'] ?? "00:00",
             status: status,
-            type: type, // Passing type to card
+            type: type,
+            tokenData: tokenData,
           ),
         );
 
@@ -247,11 +256,11 @@ class _MyappointmentsState extends State<Myappointments> {
     required String time,
     required String status,
     required String type,
+    required String tokenData,
   }) {
     Color statusColor;
     String statusText;
 
-    // Status logic
     switch (status) {
       case '1':
         statusColor = Colors.green;
@@ -266,103 +275,127 @@ class _MyappointmentsState extends State<Myappointments> {
         statusText = "Pending";
     }
 
-    // Type logic: 0 = Offline, 1 = Online
     String typeLabel = (type == '1') ? "Online" : "Offline";
     IconData typeIcon = (type == '1')
         ? Icons.videocam_outlined
         : Icons.location_on_outlined;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      clipBehavior:
+          Clip.antiAlias, // Ensures internal content follows border radius
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: rule.withOpacity(0.5)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            backgroundColor: lightLavender,
-            child: Icon(Icons.person, color: primaryPurple),
-          ),
-          const SizedBox(width: 15),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  parentName,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Row(
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Left Section (Details)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
                   children: [
-                    // Status Badge
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: statusColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        statusText,
-                        style: TextStyle(
-                          color: statusColor,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                    CircleAvatar(
+                      backgroundColor: lightLavender,
+                      child: const Icon(Icons.person, color: primaryPurple),
                     ),
-                    const SizedBox(width: 10),
-                    // Type Badge (Offline/Online)
-                    Row(
-                      children: [
-                        Icon(typeIcon, size: 14, color: Colors.grey[600]),
-                        const SizedBox(width: 4),
-                        Text(
-                          typeLabel,
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 11,
+                    const SizedBox(width: 15),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            parentName,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 4),
+                          Text(
+                            "$date | $time",
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              _buildMiniBadge(statusText, statusColor),
+                              const SizedBox(width: 8),
+                              Icon(typeIcon, size: 12, color: Colors.grey[500]),
+                              const SizedBox(width: 4),
+                              Text(
+                                typeLabel,
+                                style: TextStyle(
+                                  color: Colors.grey[500],
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                date,
-                style: TextStyle(
-                  color: primaryPurple,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
+            // Right Section (Token Display - matching your sketch)
+            Container(
+              width: 75,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8F6FD),
+                border: const Border(left: BorderSide(color: rule)),
+              ),
+              child: Center(
+                child: Text(
+                  tokenData, // Shows "TKN 10" exactly as in data
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: deepPurple,
+                    height: 1.2,
+                  ),
                 ),
               ),
-              Text(
-                time,
-                style: const TextStyle(color: Colors.black54, fontSize: 12),
-              ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMiniBadge(String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: color,
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }

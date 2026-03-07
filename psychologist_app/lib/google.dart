@@ -1,3 +1,4 @@
+import 'package:psychologist_app/communitypost.dart';
 import 'package:psychologist_app/myappointments.dart';
 import 'package:psychologist_app/myprofile.dart';
 import 'package:psychologist_app/homepage.dart';
@@ -19,7 +20,7 @@ class _googleState extends State<google> {
   );
   static const List<Widget> _widgetOptions = <Widget>[
     Homepage(),
-    Parentlist(),
+    Communitypost(),
     Myappointments(),
     Myprofile(),
   ];
@@ -52,7 +53,7 @@ class _googleState extends State<google> {
               color: Colors.black,
               tabs: [
                 GButton(icon: LineIcons.home, text: 'Home'),
-                GButton(icon: LineIcons.comments, text: 'Chat'),
+                GButton(icon: LineIcons.comments, text: 'Posts'),
                 GButton(icon: LineIcons.search, text: 'Search'),
                 GButton(icon: LineIcons.user, text: 'Profile'),
               ],

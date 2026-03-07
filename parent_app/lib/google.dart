@@ -1,5 +1,6 @@
 import 'package:parent_app/addchild.dart';
 import 'package:parent_app/appointmentbooking.dart';
+import 'package:parent_app/communitypost.dart';
 import 'package:parent_app/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
@@ -20,7 +21,7 @@ class _googleState extends State<google> {
   );
   static const List<Widget> _widgetOptions = <Widget>[
     Homepage(),
-    AddChild(),
+    Communitypost(),
     PsychologistList(),
     Myprofile(),
   ];
@@ -53,7 +54,7 @@ class _googleState extends State<google> {
               color: Colors.black,
               tabs: [
                 GButton(icon: LineIcons.home, text: 'Home'),
-                GButton(icon: LineIcons.comments, text: 'Chat'),
+                GButton(icon: LineIcons.comments, text: 'Post'),
                 GButton(icon: LineIcons.search, text: 'Search'),
                 GButton(icon: LineIcons.user, text: 'Profile'),
               ],

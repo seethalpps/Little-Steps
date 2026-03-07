@@ -5,6 +5,7 @@ import 'package:parent_app/changepass.dart';
 import 'package:parent_app/consultform.dart';
 import 'package:parent_app/google.dart';
 import 'package:parent_app/homepage.dart';
+import 'package:parent_app/landingpage.dart';
 import 'package:parent_app/login.dart';
 import 'package:parent_app/myprofile.dart';
 
@@ -25,6 +26,6 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: Scaffold(body: Login()));
+    return MaterialApp(home: Scaffold(body: Landingpage()));
   }
 }
